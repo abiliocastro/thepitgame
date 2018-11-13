@@ -2,9 +2,11 @@
 
 /* Initial beliefs and rules */
 total_cartas(0).
-cartas(milho,0,20).
-cartas(feijao,0,30).
-cartas(trigo,0,40).
+cartas(milho,0,60).
+cartas(feijao,0,80).
+cartas(trigo,0,100).
+score(0).
+aceitando_bids.
 
 /* Initial goals */
 
@@ -27,29 +29,90 @@ cartas(trigo,0,40).
     <- !!add_cartas(Isso, Ruma).
     
 +!iniciar : true 
-    <- .print("Deliberando");
+    <- .print("DELIBERANDO");
+    	.wait(500);
         !estrategia;
-        !timeout_bids. // Decrementa o timeout das bids   
+        !avaliar;
+        !iniciar.
 
 -!iniciar : true
     <- !iniciar.
     
-+!estrategia : cartas(milho,M,_) & cartas(feijao,F,_) & cartas(trigo,T,_)
++!estrategia : cartas(milho,M,_) & cartas(feijao,F,_) & cartas(trigo,T,_) & not cartas(_,0,_)
     <- .min([M, F, T], Min);
        .max([M, F, T], Max);
-       ?cartas(TipoMin,Min,_);
-       ?cartas(TipoMax,Max,_);
-       +priorizar(TipoMax);
-       !make_bid(TipoMin,Min);
-       +bid(TipoMin,Min,1000,waiting);  
-       .print("O que eu tenho menos ", Tipo).    
+       ?cartas(TipoMin,Min,ValorMin);
+       ?cartas(TipoMax,Max,ValorMax);
+       +tipomax(TipoMax,Max,ValorMax);
+       +tipomin(TipoMin,Min,ValorMin);
+       !make_bid(TipoMin,Min,ValorMin);
+       +bid(TipoMin,Min,ValorMin,waiting);  
+       .print("O que eu tenho menos agora ", TipoMin).    
 
-+!make_bid(Tipo,Qtd) : true
-    <- .send(dealer, achieve, bid(Tipo,Qtd)).
++!estrategia : cartas(_,0,_) & cartas(Tipo1,Q1,Valor1) & cartas(Tipo2,Q2,Valor2) & Q1 > 0 & Q2 > 0
+    <- .min([Q1,Q2], Min);
+       ?cartas(TipoMin,Min,ValorMin);
+       +tipomin(TipoMin,Min,ValorMin);
+       !make_bid(TipoMin,Min,ValorMin);
+       +bid(TipoMin,Min,ValorMin,waiting);  
+       .print("O que eu tenho menos agora ", TipoMin).
 
-+!timeout_bids : bid(Tipo,Qtd,Time,Status) & Time >= 1
-    <- -bid(Tipo,Qtd,Time,Status);
-       +bid(Tipo,Qtd,Time-1,Status).
+-!estrategia : true
+	<- !!estrategia.
+
++!avaliar : bid(Tipo,Qtd,Valor,waiting)
+	<- 
+	   .print("").
+
+-!avaliar : true
+	<- !avaliar.
+
++!make_bid(Tipo,Qtd,Valor) : Qtd > 0 & Qtd < 5
+    <- .print(Qtd,"! ",Qtd,"! ",Qtd,"! ");
+       .wait(500);
+       .send(dealer, achieve, bid(Tipo,Qtd,Valor)).
+       
+-!make_bid(Tipo,Qtd) : true
+    <- !!make_bid(Tipo,Qtd).
+
+// Recebe as bids dos outros players e aceita se a quantidade é a desejada
++!receber_bid(Qtd,Player,Valor)[source(dealer)] : aceitando_bids & tipomin(TipoMin,Qmin,ValorMin) & Qtd = Qmin & .my_name(Me) & not (Me = Player)
+    <- -aceitando_bids;
+       .print("Aceitei a bid do ", Player);
+       .wait(500);
+       .send(dealer, achieve, aceitar_bid(TipoMin,Qtd,Player,ValorMin)).
+
++!receber_bid(Qtd,Player,Valor): true
+    <- .wait(500);
+       .print("Bid recebido").
+
+-!receber_bid(Qtd,Player,Valor) : true
+	<- !!receber_bid(Qtd,Player,Valor).
+
+// Atualiza o status da bid
++!bid_aceita(TipoBid,Qtd,ValorBid)[source(dealer)] : bid(TipoBid,Qtd,ValorBid,waiting)
+    <- -bid(TipoBid,Qtd,ValorBid,waiting);
+       +bid(TipoBid,Qtd,ValorBid,accepted);
+       .wait(500);
+       .print("Crenças atualizadas após minha bid aceita").
+
+-!bid_aceita(TipoBid,Qtd,ValorBid) : true
+    <- !!bid_aceita(TipoBid,Qtd,ValorBid).
+
+// Recompoe a mao apos aceitar e ter uma bid aceita
++!recompor_mao(TipoEnv,ValorEnv,TipoBid,ValorBid,Qtd) : true
+    <- ?cartas(TipoEnv,Q1,ValorEnv);
+       -cartas(TipoEnv,Q1,ValorEnv);
+       +cartas(TipoEnv,Q1-Qtd,ValorEnv);
+       ?cartas(TipoBid,Q2,ValorBid);
+       -cartas(TipoBid,Q2,ValorBid);
+       +cartas(TipoBid,Q2+Qtd,ValorBid);
+       .wait(500);
+       .print("Mao recomposta após aceitar uma bid");
+       +aceitando_bids.
+       
+-!recompor_mao(TipoRec,Qtd,Valor) : true
+    <- !!recompor_mao(TipoRec,Qtd,Valor).
        
 // Verificando se recebeu as 9 cartas
 +total_cartas(9) : true
