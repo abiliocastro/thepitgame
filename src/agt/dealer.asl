@@ -50,7 +50,11 @@ distribuir([player1,player2,player3]).
 
 -!aceitar_bid(TipoRec,Qtd,Player,Valor)[source(PlayerAccepted)] : true
 	<- !!aceitar_bid(TipoRec,Qtd,Player,Valor)[source(PlayerAccepted)].
-	
+
+// Receber um pedido de corner
++!corner(Tipo)[source(PlayerCorner)] : true
+	<- .broadcast(achieve, corner(PlayerCorner, Tipo)). 
+
 // Pra fazer iteracão
 //+distribuir([]) : cartas(milho, 0) & cartas(feijao,0) & cartas(trigo,0)
 //     <- .print("INICIANDO UMA NOVA RODADA");
