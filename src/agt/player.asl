@@ -259,7 +259,6 @@ tipomin(qualquer,100,vqlq).
 		
 -!corner : true
 	<- !corner.
-
 	
 // Para usar no modo iterado
 +!reiniciar[source(dealer)] : true
