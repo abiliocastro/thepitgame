@@ -53,7 +53,8 @@ distribuir([player1,player2,player3]).
 
 // Receber um pedido de corner
 +!corner(Tipo)[source(PlayerCorner)] : true
-	<- .broadcast(achieve, corner(PlayerCorner, Tipo)). 
+	<- .broadcast(achieve, corner(PlayerCorner, Tipo));
+		.wait(10000). 
 
 // Pra fazer iteracão
 //+distribuir([]) : cartas(milho, 0) & cartas(feijao,0) & cartas(trigo,0)
