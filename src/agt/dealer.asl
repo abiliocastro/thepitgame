@@ -41,15 +41,21 @@ distribuir([player1,player2,player3]).
     <- !!bid(Tipo,Qtd)[source(Player)].
 	
 // Recebe a informacao quando um player aceita uma bid
-+!aceitar_bid(TipoRec,Qtd,Player,ValorRec)[source(PlayerAccepted)] : bid(TipoBid,Qtd,Player,ValorBid,waiting)
-	<- .print(PlayerAccepted, " aceitou a bid de ", Player);
++!aceitar_bid(Player,Qtd)[source(PlayerAccepted)] : bid(TipoBid,Qtd,Player,ValorBid,waiting)
+											  & bid(TipoAcc,Qtd,PlayerAccepted,ValorAcc,waiting) 
+											  & not changing
+	<- +changing;
+	   .print(PlayerAccepted, " aceitou a bid de ", Player);
 	   -bid(TipoBid,Qtd,Player,ValorBid,waiting);
 	   +bid(TipoBid,Qtd,Player,ValorBid,accepted);
-	   .send(PlayerAccepted, achieve, recompor_mao(TipoRec,ValorRec,TipoBid,ValorBid,Qtd));
-	   .send(Player, achieve, bid_aceita(TipoBid,Qtd,ValorBid)).
+	   -bid(TipoAcc,Qtd,PlayerAccepted,ValorAcc,waiting);
+	   +bid(TipoAcc,Qtd,PlayerAccepted,ValorAcc,accepted);
+	   .send(PlayerAccepted, achieve, recompor_mao(TipoBid,TipoAcc,Qtd));
+	   .send(Player, achieve, recompor_mao(TipoAcc,TipoBid,Qtd));
+	   -changing.
 
--!aceitar_bid(TipoRec,Qtd,Player,Valor)[source(PlayerAccepted)] : true
-	<- !!aceitar_bid(TipoRec,Qtd,Player,Valor)[source(PlayerAccepted)].
+-!aceitar_bid(Player,Qtd)[source(PlayerAccepted)] : true
+	<- !!aceitar_bid(Player,Qtd)[source(PlayerAccepted)].
 
 // Receber um pedido de corner
 +!corner(Tipo)[source(PlayerCorner)] : true

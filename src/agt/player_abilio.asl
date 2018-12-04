@@ -136,7 +136,7 @@ esperar_acoes(500).
  +!estrategia_diminuir: cartas(Tipo,9,Valor)
 	<- +parar.
  
- -!estrategia_diminuir : timeout_bid(TO) & TO > 10 & TO < 21 & not parar 
+-!estrategia_diminuir : timeout_bid(TO) & TO > 10 & TO < 21 & not parar 
 	<- !incrementar_timeout;
 	   !estrategia_diminuir.
 
@@ -199,9 +199,11 @@ esperar_acoes(500).
        .wait(Espera);
        .send(dealer, achieve, bid(Tipo,Qtd,Valor)).
        
+-!make_bid(Tipo,Qtd,Valor) : Qtd > 4
+	<- !incrementar_timeout.
        
 -!make_bid(Tipo,Qtd,Valor) : true
-    <- !!make_bid(Tipo,Qtd).
+    <- !!make_bid(Tipo,Qtd,Valor).
 
 // Recebe as bids dos outros players e aceita se a quantidade é a desejada
 +!receber_bid(Qtd,Player,Valor)[source(dealer)] : aceitando_bids 
@@ -214,47 +216,48 @@ esperar_acoes(500).
        -+ultimo_aceitei(Player);
        ?esperar_acoes(Espera);
        .wait(Espera);
-       .send(dealer, achieve, aceitar_bid(Tipo,Q,Player,Val)).
+       .send(dealer, achieve, aceitar_bid(Player,Q));
+       +aceitando_bids.
 
-+!receber_bid(Qtd,Player,Valor): true
++!receber_bid(Qtd,Player,Valor): not parar
     <- ?esperar_acoes(Espera);
        .wait(Espera);
        .print("Bid recebido").
 
 -!receber_bid(Qtd,Player,Valor) : true
-	<- !!receber_bid(Qtd,Player,Valor).
+	<- +parar.
 
 // Atualiza o status da bid
-+!bid_aceita(TipoBid,Qtd,ValorBid)[source(dealer)] : true
-    <- -aceitando_bids;
-       .print("Começando a atualizar bid");
-       ?bid(TipoBid,Qtd,ValorBid,waiting);
-       -bid(TipoBid,Qtd,ValorBid,waiting);
-       +bid(TipoBid,Qtd,ValorBid,accepted);
-       ?esperar_acoes(Espera);
-       .wait(Espera);
-       .print("Crenças atualizadas após minha bid aceita").
-
--!bid_aceita(TipoBid,Qtd,ValorBid) : true
-    <- .print("Ja aceitei de outro cara").
+//+!bid_aceita(TipoBid,Qtd,ValorBid)[source(dealer)] : true
+//    <- -aceitando_bids;
+//       .print("Começando a atualizar bid");
+//       ?bid(TipoBid,Qtd,ValorBid,waiting);
+//       -bid(TipoBid,Qtd,ValorBid,waiting);
+//       +bid(TipoBid,Qtd,ValorBid,accepted);
+//       ?esperar_acoes(Espera);
+//       .wait(Espera);
+//       .print("Crenças atualizadas após minha bid aceita").
+//
+//-!bid_aceita(TipoBid,Qtd,ValorBid) : true
+//    <- .print("Ja aceitei de outro cara").
 
 // Recompoe a mao apos aceitar e ter uma bid aceita
-+!recompor_mao(TipoEnv,ValorEnv,TipoBid,ValorBid,Qtd)[source(dealer)] : cartas(TipoEnv, Q, VQ) & not (Q = 0)
-    <- -aceitando_bids;
-       ?cartas(TipoEnv,Q1,ValorEnv);
-       -cartas(TipoEnv,Q1,ValorEnv);
-       +cartas(TipoEnv,Q1-Qtd,ValorEnv);
-       ?cartas(TipoBid,Q2,ValorBid);
-       -cartas(TipoBid,Q2,ValorBid);
-       +cartas(TipoBid,Q2+Qtd,ValorBid);
-       !atualizar_ultimo_tipo(TipoBid);
-       //?esperar_acoes(Espera);
-       .wait(2000);
-       .print("Mao recomposta após aceitar uma bid");
-       +aceitando_bids.
++!recompor_mao(TipoAdd,TipoRet,Qtd)[source(dealer)] :  not parar & not recompondo
+    <- +recompondo;
+       .print("RECOMPONDO MAO");
+       ?cartas(TipoRet,Q1,ValorRet);
+       -cartas(TipoRet,Q1,ValorRet);
+       +cartas(TipoRet,Q1-Qtd,ValorRet);
+       ?cartas(TipoAdd,Q2,ValorAdd);
+       -cartas(TipoAdd,Q2,ValorAdd);
+       +cartas(TipoAdd,Q2+Qtd,ValorAdd);
+       !atualizar_ultimo_tipo(TipoAdd);
+       ?esperar_acoes(Espera);
+       .wait(Espera);
+       -recompondo.
        
--!recompor_mao(TipoEnv,ValorEnv,TipoBid,ValorBid,Qtd)[source(dealer)] : true
-    <- .print("DESCARTEI UMA BID Q FOI ACEITA").
+-!recompor_mao(TipoAdd,TipoRet,Qtd)[source(dealer)] : true
+    <- .print("NAO POSSO RECOMPOR MAO").
 
 +!atualizar_ultimo_tipo(Tipo) : ultimo_tipo(TipoAnterior) & (TipoAnterior = Tipo) 
 	<- ?ultimo_aceitei(Cara);
@@ -280,10 +283,10 @@ esperar_acoes(500).
 +!corner(Player, Tipo)[source(dealer)] : .my_name(Me) & not (Me = Player)
 	<-  +outro_ganhou(Player, Tipo);
 		+parar;
-	    !ganhar.
+		!ganhar.
 
--!corner(Player, Tipo) : true
-	<- .print("PARECE Q EU GANHEI");
+-!corner(Player, Tipo) : true // Ele ganhou
+	<- +parar;
 	   !ganhar.
 
 +!corner: cartas(Tipo, 9, Valor)
