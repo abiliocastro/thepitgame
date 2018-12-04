@@ -16,11 +16,11 @@ mas the_pit_game {
 
     agent dealer : dealer.asl
     
-    agent player1 : player_abilio.asl
+    agent player_abilio : player_abilio.asl
     
-    agent player2 : player_abilio.asl
+    agent player_romario : player_romario.asl
 
-    agent player3 : player_abilio.asl
+    agent player_leandro : player_leandro.asl
 
 }
 

@@ -8,7 +8,7 @@ cartas(trigo,9,100).
 tipos([milho,feijao,trigo]).
 
 /* Initial goals */
-distribuir([player1,player2,player3]).
+distribuir([player_abilio,player_romario,player_leandro]).
 
 /* Plans */
 // Distribuir cartas para os players 
@@ -25,7 +25,7 @@ distribuir([player1,player2,player3]).
 		-+distribuir(T).
 
 +distribuir([]) : cartas(_,Qtd,_) & Qtd > 1
-	<- -+distribuir([player1,player2,player3]).
+	<- -+distribuir([player_abilio,player_romario,player_leandro]).
 	
 +distribuir([]) : cartas(milho,0,_) & cartas(feijao,0,_) & cartas(trigo,0,_)
     <- .print("DISTRIBUIÇÃO FINALIZADA");
