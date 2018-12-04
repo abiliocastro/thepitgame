@@ -98,21 +98,19 @@ esperar_acoes(500).
        ?cartas(Tipo,9,Valor).
  
  +!estrategia_inicial: cartas(Tipo,9,Valor)
-	<- +parar;
-	   !ganhar.
+	<- +parar.
  
 -!estrategia_inicial : timeout_bid(TO) & TO < 11 & not parar 
 	<- !incrementar_timeout;
-	   !!estrategia_inicial.
+	   !estrategia_inicial.
 
 -!estrategia_inicial : not parar
 	<- !incrementar_timeout;
 	   .print("MUDANDO ESTRATEGIA PARA diminuir");
-	   !!estrategia_diminuir. 
+	   !estrategia_diminuir. 
 
 -!estrategia_inicial : true
-	<- +parar;
-	   !ganhar.	   	
+	<- +parar.	   	
                 
 /* ESTRATEGIA DE DIMINUIR A QUANTIDADE DA BID */
 // Nenhum tipo zerado   
@@ -136,21 +134,19 @@ esperar_acoes(500).
 	   ?cartas(Tipo,9,Valor).
  
  +!estrategia_diminuir: cartas(Tipo,9,Valor)
-	<- +parar;
-	   !ganhar.
+	<- +parar.
  
  -!estrategia_diminuir : timeout_bid(TO) & TO > 10 & TO < 21 & not parar 
 	<- !incrementar_timeout;
-	   !!estrategia_diminuir.
+	   !estrategia_diminuir.
 
 -!estrategia_diminuir : not parar
 	<- !incrementar_timeout;
 	   .print("MUDANDO ESTRATEGIA PARA aleatoria");
-	   !!estrategia_aleatoria.	   
+	   !estrategia_aleatoria.	   
 
 -!estrategia_diminuir : true
-	<- +parar;
-	   !ganhar.	   	
+	<- +parar.	   	
 
 /* ESTRATEGIA SELECIONAR UMA QUANTIDA ALEATORIA */
 // Nenhum tipo zerado
@@ -180,21 +176,19 @@ esperar_acoes(500).
 	   ?cartas(Tipo,9,Valor).
 
 +!estrategia_aleatoria: cartas(Tipo,9,Valor)
-	<- +parar;
-	   !ganhar.
+	<- +parar.
 	
 -!estrategia_aleatoria : timeout_bid(TO) & TO < 31 & not parar 
 	<- !incrementar_timeout;
-	   !!estrategia_aleatoria.
+	   !estrategia_aleatoria.
 
 -!estrategia_aleatoria : not parar
 	<- !resetar_timeout;
 	   .print("MUDANDO ESTRATEGIA PARA inicial");	
-	   !!estrategia_inicial.
+	   !estrategia_inicial.
 
 -!estrategia_aleatoria : true
-	<- +parar;
-	   !ganhar.	   	
+	<- +parar.	   	
 
 /* PLANOS CHAMADOS PELAS ESTRATÉGIAS */
 // Realiza a bid se está dentro da quatinda minima e maxima aceita
@@ -206,7 +200,7 @@ esperar_acoes(500).
        .send(dealer, achieve, bid(Tipo,Qtd,Valor)).
        
        
--!make_bid(Tipo,Qtd) : true
+-!make_bid(Tipo,Qtd,Valor) : true
     <- !!make_bid(Tipo,Qtd).
 
 // Recebe as bids dos outros players e aceita se a quantidade é a desejada
