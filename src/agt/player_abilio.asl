@@ -11,10 +11,9 @@ timeout_bid(0).
 ultimo_tipo(null).
 ultimo_aceitei(null).
 esse_nao(null).
-esperar_acoes(500).
+esperar_acoes(20).
 
 /* Initial goals */
-!ganhar.
 
 /* Plans */
 /* DISTRIBUIÇÃO */
@@ -40,7 +39,8 @@ esperar_acoes(500).
  
 +!ganhar: outro_ganhou(Alguem, OutroTipo)
 	<- .print("Eh nao ganhei essa ja que o ", Alguem, " ganhou com ", OutroTipo); // Reconhecendo a derrota
-	   .wait(10000).
+	   ?esperar_acoes(Espera);
+       .wait(Espera).
 
 +!ganhar: cartas(Tipo,9,Valor)
 	<- .print("Ganhei essa parada com ", Tipo, " doidim!"). // Se vangloriando
@@ -225,39 +225,33 @@ esperar_acoes(500).
        .print("Bid recebido").
 
 -!receber_bid(Qtd,Player,Valor) : true
-	<- +parar.
-
-// Atualiza o status da bid
-//+!bid_aceita(TipoBid,Qtd,ValorBid)[source(dealer)] : true
-//    <- -aceitando_bids;
-//       .print("Começando a atualizar bid");
-//       ?bid(TipoBid,Qtd,ValorBid,waiting);
-//       -bid(TipoBid,Qtd,ValorBid,waiting);
-//       +bid(TipoBid,Qtd,ValorBid,accepted);
-//       ?esperar_acoes(Espera);
-//       .wait(Espera);
-//       .print("Crenças atualizadas após minha bid aceita").
-//
-//-!bid_aceita(TipoBid,Qtd,ValorBid) : true
-//    <- .print("Ja aceitei de outro cara").
+	<- !incrementar_timeout.
 
 // Recompoe a mao apos aceitar e ter uma bid aceita
-+!recompor_mao(TipoAdd,TipoRet,Qtd)[source(dealer)] :  not parar & not recompondo
++!recompor_mao(TipoAdd,TipoRet,Qtd)[source(dealer)] :  not parar & not recompondo 
+														& cartas(TipoRet,Q1,ValorRet) & Q1 > 0
     <- +recompondo;
        .print("RECOMPONDO MAO");
-       ?cartas(TipoRet,Q1,ValorRet);
+       ?bid(TipoRet,Q,Val,waiting);
+       -bid(TipoRet,Q,Val,waiting);
+       +bid(TipoRet,Q,Val,accepted);
        -cartas(TipoRet,Q1,ValorRet);
        +cartas(TipoRet,Q1-Qtd,ValorRet);
        ?cartas(TipoAdd,Q2,ValorAdd);
        -cartas(TipoAdd,Q2,ValorAdd);
        +cartas(TipoAdd,Q2+Qtd,ValorAdd);
        !atualizar_ultimo_tipo(TipoAdd);
+       .print("MAO RECOMPOSTA");
        ?esperar_acoes(Espera);
        .wait(Espera);
        -recompondo.
        
--!recompor_mao(TipoAdd,TipoRet,Qtd)[source(dealer)] : true
-    <- .print("NAO POSSO RECOMPOR MAO").
+-!recompor_mao(TipoAdd,TipoRet,Qtd)[source(dealer)] : bid(TipoRet,Q,Val,waiting)
+    <- .print("Eu tenho a bid de ", TipoRet, " na quantidade ", Q, " mas nao posso recompor").
+    
+-!recompor_mao(TipoAdd,TipoRet,Qtd)[source(dealer)] : true 
+	<- -recompondo;
+	   .print("Não tenho a bid de ", TipoRet, " na quantidade ", Qtd, " por isso nao posso recompor").
 
 +!atualizar_ultimo_tipo(Tipo) : ultimo_tipo(TipoAnterior) & (TipoAnterior = Tipo) 
 	<- ?ultimo_aceitei(Cara);
@@ -280,7 +274,7 @@ esperar_acoes(500).
 	<- !corner.
 
 // Receber noticia de corner
-+!corner(Player, Tipo)[source(dealer)] : .my_name(Me) & not (Me = Player)
++!corner(Player, Tipo)[source(dealer)] : .my_name(Me) & not (Me = Player) & not parar
 	<-  +outro_ganhou(Player, Tipo);
 		+parar;
 		!ganhar.
@@ -290,23 +284,44 @@ esperar_acoes(500).
 	   !ganhar.
 
 +!corner: cartas(Tipo, 9, Valor)
-	<-  .send(dealer, achieve, corner(Tipo)).
+	<-  .send(dealer, achieve, corner(Tipo));
+		?cartas(Tipo,_,Valor);
+		?score(X);
+		-score(X);
+		+score(X+Valor).
 
 -!corner : true
 	<- !corner.
-	
+
++!zerar_crencas[source(dealer)] : true
+	<- 	+parar;
+	   	-total_cartas(TC);
+    	+total_cartas(0);
+	   	-cartas(milho,QM,VM);
+	   	+cartas(milho,0,60);
+	   	-cartas(feijao,QF,VF);
+	   	+cartas(feijao,0,80);
+	   	-cartas(trigo,QT,VT);
+	   	+cartas(trigo,0,100);
+		+aceitando_bids;
+		-+timeout_bid(0);
+		-+ultimo_tipo(null);
+		-+ultimo_aceitei(null);
+		-+esse_nao(null);
+		-outro_ganhou(Alguem, OutroTipo);
+		-bid(milho,QBM,VBM,StM);
+		-bid(feijao,QBF,VBF,StF);
+		-bid(trigo,QBT,VBT,StT);
+		.print("CRENÇAS ZERADAS").
+
 // Para usar no modo iterado
 +!reiniciar[source(dealer)] : true
-    <- -+total_cartas(0);
-       -+cartas(milho,0,_);
-	   -+cartas(trigo,0,_);
-       -+cartas(feijao,0,_);
-       .print("PRONTO PARA UMA NOVA RODADA");
-       .wait(2000).
+    <- 	-parar;
+       	.print("PRONTO PARA UMA NOVA RODADA"). 	
+       	.wait(500).
 
 -!reiniciar : true
-    <- !reiniciar.      
-      
+    <- !reiniciar.          
 
 { include("$jacamoJar/templates/common-cartago.asl") }
 { include("$jacamoJar/templates/common-moise.asl") }
