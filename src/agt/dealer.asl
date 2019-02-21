@@ -79,7 +79,7 @@ distribuir([abilio,leandro,romario]).
 // Receber um pedido de corner
 +!corner(Tipo)[source(PlayerCorner)] : true
 	<- .broadcast(achieve, corner(PlayerCorner, Tipo));
-		.wait(5000);
+		.wait(1000);
 		?cartas(Tipo,_,Valor);
 		?score(PlayerCorner,X);
 		-score(PlayerCorner,X);
@@ -113,7 +113,7 @@ distribuir([abilio,leandro,romario]).
        -tipos([]);
        +tipos([milho,feijao,trigo]);
        .broadcast(achieve, zerar_crencas);
-       .wait(5000);
+       .wait(1000);
        .broadcast(achieve, reiniciar);
        ?espera(Tempo);
        .wait(Tempo);
