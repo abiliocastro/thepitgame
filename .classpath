@@ -6,6 +6,6 @@
 	<classpathentry excluding="*.xml" kind="src" path="src/org"/>
 	<classpathentry kind="src" path="src/env"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.USER_LIBRARY/JaCaMo"/>
-	<classpathentry kind="lib" path="/home/abilio/Dropbox/UFC/Conteúdos Disciplinas/S4/Projeto Detalhado de Software/JPlay/dist/JPlay.jar"/>
+	<classpathentry kind="lib" path="/home/abilio/Dropbox/eclipse-workspace/the_pit_game/lib/JPlay.jar"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

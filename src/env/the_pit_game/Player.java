@@ -70,4 +70,8 @@ public class Player {
 			this.posicoes[i] = new Ponto(this.posicoes[i-1].x + 45, this.posicoes[0].y);
 		}
 	}
+	
+	public String getNome() {
+		return this.nome;
+	}
 }

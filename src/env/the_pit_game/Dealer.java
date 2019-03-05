@@ -1,6 +1,8 @@
 package the_pit_game;
 
 import java.awt.Font;
+import java.util.ArrayList;
+
 import JGamePlay.GameImage;
 import JGamePlay.Text;
 
@@ -12,6 +14,9 @@ public class Dealer {
 	private Ponto[] posicoes;
 	private Font fontNome = new Font("FreeSans", Font.TRUETYPE_FONT, 34);
 	private Text txtNome;
+	private Text txtMensagem;
+	private Font fontMensagem = new Font("FreeSans", Font.TRUETYPE_FONT, 26);
+	private ArrayList<Player> players;
 	
 	public Dealer(double x, double y) {
 		this.x = x;
@@ -26,8 +31,12 @@ public class Dealer {
 	public void desenhar() {
 		this.profile.draw();
 		this.txtNome.draw();
+		this.txtMensagem.draw();
 		for (Carta carta : deck) {
-			carta.desenhar();
+			if(carta != null) {
+				carta.desenhar();
+			}
+
 		}
 	}
 	
@@ -44,8 +53,11 @@ public class Dealer {
 	private void setText() {
 		int ty = (int) (this.y + 43);
 		int profx = (int) (this.profile.x);
-		this.txtNome = new Text("Dealer", (profx + this.profile.width + 9), ty);
+		this.txtNome = new Text("dealer", (profx + this.profile.width + 9), ty);
 		this.txtNome.setFont(fontNome);
+		int tpy = (int) (this.y + 68);
+		this.txtMensagem = new Text("tudo pronto", (profx + this.profile.width + 9), tpy);
+		this.txtMensagem.setFont(fontMensagem);
 	}
 	
 	private void setDeck() {
@@ -58,6 +70,43 @@ public class Dealer {
 		for (int i = 1; i < posicoes.length; i++) {
 			this.posicoes[i] = new Ponto(this.posicoes[i-1].x + 45, this.posicoes[0].y);
 		}
+	}
+	
+	public void receberPlayers(ArrayList<Player> players) {
+		this.players = players;
+	}
+	
+	public void distribuir(String agent, String tipo) {
+		for (Player player : this.players) {
+			if(player.getNome().equals(agent)) {
+				for (int i = 0; i < deck.length; i++) {
+					if(tipo.equals("trigo")) {
+						if(deck[i] instanceof CartaTrigo) {
+							player.addCarta(deck[i]);
+							deck[i] = null;
+							break;
+						}
+					}else if(tipo.equals("feijao")) {
+						if(deck[i] instanceof CartaFeijao) {
+							player.addCarta(deck[i]);
+							deck[i] = null;
+							break;
+						}
+					}else {
+						if(deck[i] instanceof CartaMilho) {
+							player.addCarta(deck[i]);
+							deck[i] = null;
+							break;
+						}
+					}
+				}
+				break;
+			}
+		}
+	}
+	
+	public void atualizarTexto(String msg) {
+		this.txtMensagem.setText(msg);
 	}
 }
 

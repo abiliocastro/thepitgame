@@ -4,7 +4,7 @@
 cartas(milho,9,60).
 cartas(feijao,9,80).
 cartas(trigo,9,100).
-espera(500).
+espera(200).
 
 tipos([milho,feijao,trigo]).
 
@@ -26,6 +26,9 @@ distribuir([abilio,leandro,romario]).
 		jia.random_int(I,Size);
 		.nth(I,L,Tipo);
 		.send(H, achieve, receber_cartas(Tipo,1));
+		distribuir(H, Tipo);
+		?espera(Tempo);
+        .wait(Tempo);
 		?cartas(Tipo,Tanto,Valor);
 		-cartas(Tipo,Tanto,Valor);
 		+cartas(Tipo,Tanto-1,Valor);
@@ -37,6 +40,7 @@ distribuir([abilio,leandro,romario]).
 	
 +distribuir([]) : cartas(milho,0,_) & cartas(feijao,0,_) & cartas(trigo,0,_)
     <- .print("DISTRIBUIÇÃO FINALIZADA");
+       mensagemDealer("DISTRIBUIÇÃO FINALIZADA")
        ?espera(Tempo);
        .wait(Tempo);
        .broadcast(achieve, iniciar).	

@@ -21,6 +21,21 @@ mas the_pit_game {
     agent leandro : player_abilio.asl
 
     agent romario : player_abilio.asl
+    
+    workspace w1 {
+  
+	    artifact env_art: env.GameEnv() {
+	         focused-by: dealer
+	         			 abilio
+	         			 leandro
+	         			 romario
+	    }
+	
+	    agents: dealer, abilio, leandro, romario
+	
+	}
+
+	class-path: lib                      // java class path
 
 }
 

@@ -6,7 +6,11 @@ public class Main {
 		// TODO Auto-generated method stub
 		Jogo jogo = new Jogo();
 		jogo.iniciar();
-
+		jogo.distribuir("abilio", "trigo");
+		jogo.distribuir("leandro", "feijao");
+		jogo.distribuir("romario", "milho");
+		jogo.atualizar();
+		
 	}
 
 }
