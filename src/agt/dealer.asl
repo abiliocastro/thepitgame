@@ -4,7 +4,7 @@
 cartas(milho,9,60).
 cartas(feijao,9,80).
 cartas(trigo,9,100).
-espera(200).
+espera(1500).
 
 tipos([milho,feijao,trigo]).
 
@@ -33,6 +33,8 @@ distribuir([abilio,leandro,romario]).
 		-cartas(Tipo,Tanto,Valor);
 		+cartas(Tipo,Tanto-1,Valor);
 		.print("Tenho ", Tanto, " cartas do tipo ", Tipo);
+		.concat("Tenho ", Tanto, " cartas do tipo ", Tipo, Msg);
+	    mensagemDealer(Msg);
 		-+distribuir(T).
 
 +distribuir([]) : cartas(_,Qtd,_) & Qtd > 0
@@ -40,7 +42,7 @@ distribuir([abilio,leandro,romario]).
 	
 +distribuir([]) : cartas(milho,0,_) & cartas(feijao,0,_) & cartas(trigo,0,_)
     <- .print("DISTRIBUIÇÃO FINALIZADA");
-       mensagemDealer("DISTRIBUIÇÃO FINALIZADA")
+       mensagemDealer("DISTRIBUIÇÃO FINALIZADA");
        ?espera(Tempo);
        .wait(Tempo);
        .broadcast(achieve, iniciar).	
@@ -65,6 +67,8 @@ distribuir([abilio,leandro,romario]).
 											  & not changing
 	<- +changing;
 	   .print(PlayerAccepted, " aceitou a bid de ", Player);
+	   .concat(PlayerAccepted, " aceitou a bid de ", Player, Msg);
+	   mensagemDealer(Msg);
 	   -bid(TipoBid,Qtd,Player,ValorBid,waiting);
 	   +bid(TipoBid,Qtd,Player,ValorBid,accepted);
 	   -bid(TipoAcc,Qtd,PlayerAccepted,ValorAcc,waiting);
@@ -88,6 +92,7 @@ distribuir([abilio,leandro,romario]).
 		?score(PlayerCorner,X);
 		-score(PlayerCorner,X);
 		+score(PlayerCorner,X+Valor);
+		atualizarPontuacao(PlayerCorner,X+Valor);
 		!pontuacao;
 		?espera(Tempo);
 		.wait(Tempo);
@@ -121,10 +126,11 @@ distribuir([abilio,leandro,romario]).
        .broadcast(achieve, reiniciar);
        ?espera(Tempo);
        .wait(Tempo);
+       novaRodada;
        -+distribuir([abilio,leandro,romario]).
 
 -!nova_rodada : true
-	<- .wait(20).     		
+	<- .wait(1000).     		
 
 +score(Player,S) : S >= 500
 	<- 	+vencedor;

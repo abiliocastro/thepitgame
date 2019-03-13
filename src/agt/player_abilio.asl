@@ -11,7 +11,7 @@ timeout_bid(0).
 ultimo_tipo(null).
 ultimo_aceitei(null).
 esse_nao(null).
-esperar_acoes(20).
+esperar_acoes(1500).
 
 /* Initial goals */
 
@@ -194,7 +194,12 @@ esperar_acoes(20).
 // Realiza a bid se está dentro da quatinda minima e maxima aceita
 +!make_bid(Tipo,Qtd,Valor) : Qtd > 0 & Qtd < 5 & not parar
     <- .print(Qtd,"! ",Qtd,"! ",Qtd,"! ");
+       .concat(Qtd,"! ",Qtd,"! ",Qtd,"! ", Msg);
+       .my_name(Me);
+       mensagemPlayer(Me,Msg);
+       limparBids(Me); 
        +bid(Tipo,Qtd,Valor,waiting);
+       makeBid(Me,Tipo,Qtd);
        ?esperar_acoes(Espera);
        .wait(Espera);
        .send(dealer, achieve, bid(Tipo,Qtd,Valor)).
@@ -240,6 +245,8 @@ esperar_acoes(20).
        ?cartas(TipoAdd,Q2,ValorAdd);
        -cartas(TipoAdd,Q2,ValorAdd);
        +cartas(TipoAdd,Q2+Qtd,ValorAdd);
+       .my_name(Me);
+       recomporMao(Me,TipoAdd,TipoRet,Qtd);
        !atualizar_ultimo_tipo(TipoAdd);
        .print("MAO RECOMPOSTA");
        ?esperar_acoes(Espera);
@@ -317,7 +324,7 @@ esperar_acoes(20).
 // Para usar no modo iterado
 +!reiniciar[source(dealer)] : true
     <- 	-parar;
-       	.print("PRONTO PARA UMA NOVA RODADA"). 	
+       	.print("PRONTO PARA UMA NOVA RODADA"); 	
        	.wait(500).
 
 -!reiniciar : true

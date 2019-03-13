@@ -26,7 +26,13 @@ public class Dealer {
 		this.profile.setDimension(60, 76);
 		this.setDeck();
 		this.setText();	
-	}	
+	}
+	
+	public void reiniciar() {
+		for (int i = 0; i < deck.length; i++) {
+			this.deck[i] = null;
+		}
+	}
 	
 	public void desenhar() {
 		this.profile.draw();
@@ -92,7 +98,7 @@ public class Dealer {
 							deck[i] = null;
 							break;
 						}
-					}else {
+					}else { // Milho
 						if(deck[i] instanceof CartaMilho) {
 							player.addCarta(deck[i]);
 							deck[i] = null;

@@ -23,5 +23,13 @@ public abstract class Carta {
 		this.posicao = posicao;
 	}
 	
+	public void select() {
+		this.img.loadImage(this.img_ac_path);
+	}
+	
+	public void deselect() {
+		this.img.loadImage(this.img_path);
+	}
+	
 	
 }

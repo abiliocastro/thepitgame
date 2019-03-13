@@ -22,8 +22,39 @@ public class GameEnv extends Artifact {
     	jogo.atualizar();
     }
     
+    @OPERATION void makeBid(String agent, String tipo, int qtd) throws Exception {     
+    	jogo.makeBid(agent, tipo, qtd);
+    	jogo.mensagemDealer("BID DE " + agent + " TIPO: " + tipo + " QTD: " + qtd);
+    	jogo.atualizar();
+    }
+    
+    @OPERATION void limparBids(String agent) throws Exception {     
+    	jogo.limparBids(agent);
+    	jogo.atualizar();
+    }
+    
+    @OPERATION void recomporMao(String player, String tipoReceber, String tipoEntregar,  int qtd) {
+		jogo.recomporMao(player, tipoReceber, tipoEntregar, qtd);
+		jogo.atualizar();
+	}
+    
+    @OPERATION void novaRodada() {
+    	jogo.novaRodada();
+    	jogo.atualizar();
+    }
+    
     @OPERATION void mensagemDealer(String msg) throws Exception {     
     	jogo.mensagemDealer(msg);
+    	jogo.atualizar();
+    }
+    
+    @OPERATION void mensagemPlayer(String player, String msg) throws Exception {
+    	jogo.mensagemPlayer(player, msg);
+    	jogo.atualizar();
+    }
+    
+    @OPERATION void atualizarPontuacao(String player, int pontuacao) throws Exception {
+    	jogo.atualizarPontuacao(player, pontuacao);
     	jogo.atualizar();
     }
 

@@ -8,13 +8,22 @@ import JGamePlay.Window;
 public class Jogo extends Thread {
 
 	private Window janela = new Window(1272, 720);
-	private Player player1 = new Player(0,0, "abilio");
-	private Player player2 = new Player(424,0, "leandro");
-	private Player player3 = new Player(848,0, "romario");
+	private Player abilio = new Player(0,0, "abilio");
+	private Player leandro = new Player(424,0, "leandro");
+	private Player romario = new Player(848,0, "romario");
 	private Dealer dealer = new Dealer(0, 167);
+	private ArrayList<Player> players;
 	
 	public void iniciar() {
 		this.start();
+		this.players = new ArrayList<Player>(Arrays.asList(abilio,leandro,romario));
+		dealer.receberPlayers(players);
+		this.iniciarDeckDealer();
+		this.atualizar();
+
+	}
+	
+	private void iniciarDeckDealer() {
 		for (int i = 0; i < 9; i++) {
 			dealer.addCarta(new CartaMilho(60));
 		}
@@ -24,41 +33,76 @@ public class Jogo extends Thread {
 		for (int i = 0; i < 9; i++) {
 			dealer.addCarta(new CartaTrigo(100));
 		}
-		dealer.desenhar();
-
-//		for (int i = 0; i < 9; i++) {
-//			player1.addCarta(new CartaTrigo(100));
-//		}
-		player1.desenhar();
-//		for (int i = 0; i < 9; i++) {
-//			player2.addCarta(new CartaTrigo(100));
-//		}
-		player2.desenhar();
-//		for (int i = 0; i < 9; i++) {
-//			player3.addCarta(new CartaTrigo(100));
-//		}
-		player3.desenhar();
-		
-		dealer.receberPlayers(new ArrayList<Player>(Arrays.asList(player1,player2,player3)));
-		
-		janela.display();
-
+	}
+	
+	public void novaRodada() {
+		dealer.reiniciar();
+		for (Player player : players) {
+			player.reiniciar();
+		}
+		this.iniciarDeckDealer();
 	}
 	
 	public void distribuir(String agent, String tipo) {
 		dealer.distribuir(agent, tipo);
 	}
 	
+	public void makeBid(String agent, String tipo, int qtd) {
+		for (Player jogador : players) {
+			if(jogador.getNome().equals(agent)) {
+				jogador.makeBid(tipo, qtd);
+				break;
+			}
+		}
+	}
+	
+	public void limparBids(String agent) {
+		for (Player jogador : players) {
+			if(jogador.getNome().equals(agent)) {
+				jogador.limparSelecionadas();
+				break;
+			}
+		}
+	}
+	
+	public void recomporMao(String player, String tipoReceber, String tipoEntregar,  int qtd) {
+		for (Player jogador : players) {
+			if(jogador.getNome().equals(player)) {
+				jogador.recomporMao(tipoReceber, tipoEntregar, qtd);
+				break;
+			}
+		}
+	}
+	
 	public void atualizar() {
 		dealer.desenhar();
-		player1.desenhar();
-		player2.desenhar();
-		player3.desenhar();
+		abilio.desenhar();
+		leandro.desenhar();
+		romario.desenhar();
 		janela.display();
 	}
 	
 	public void mensagemDealer(String text) {
 		dealer.atualizarTexto(text);
+	}
+	
+	public void mensagemPlayer(String player, String msg) {
+		for (Player jogador : players) {
+			if(jogador.getNome().equals(player)) {
+				jogador.atualizarMensagem(msg);
+				break;
+			}
+		}
+	}
+	
+	public void atualizarPontuacao(String player, int pontuacao) {
+		//String[] splited = msg.split(" ");
+		for (Player jogador : players) {
+			if(jogador.getNome().equals(player)) {
+				jogador.setPontuacao(pontuacao);
+				break;
+			}
+		}
 	}
 
 }

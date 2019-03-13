@@ -25,10 +25,10 @@ mas the_pit_game {
     workspace w1 {
   
 	    artifact env_art: env.GameEnv() {
-	         focused-by: dealer
-	         			 abilio
-	         			 leandro
-	         			 romario
+	         focused-by: de::dealer
+	         			 ab::abilio
+	         			 le::leandro
+	         			 ro::romario
 	    }
 	
 	    agents: dealer, abilio, leandro, romario
